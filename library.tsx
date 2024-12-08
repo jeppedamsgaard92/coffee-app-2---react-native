@@ -4,6 +4,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LibraryScreen() {
   const [savedCoffees, setSavedCoffees] = useState<Record<string, string>[]>([]);
+  const [savedEquipment, setSavedEquipment] = useState<Record<string, string>[]>([]);
+
 
   // Load saved coffees from AsyncStorage
   useEffect(() => {
@@ -20,19 +22,25 @@ export default function LibraryScreen() {
     loadCoffees();
   }, []);
 
-  // Clear saved coffees
-    // const clearAllData = async () => {
-    //   try {
-    //     await AsyncStorage.clear();
-    //     Alert.alert("Success", "All data has been cleared.");
-    //   } catch (error) {
-    //     Alert.alert("Error", "Failed to clear data.");
-    //   }
-    // };
+  // Load saved equipment from AsyncStorage on app start
+   useEffect(() => {
+    const loadEquipment = async () => {
+      try {
+        const storedEquipment = await AsyncStorage.getItem("equipment");
+        if (storedEquipment) {
+          setSavedEquipment(JSON.parse(storedEquipment));
+        }
+      } catch (error) {
+        Alert.alert("Error", "Failed to load saved equipment.");
+      }
+    };
+    loadEquipment();
+  }, []);
 
   return (
     <View style={styles.container}>
       {/* FlatList for Saved Coffees */}
+      <Text>Saved Coffees</Text>
       <FlatList
         data={savedCoffees}
         keyExtractor={(item, index) => `${item.Name}-${index}`}
@@ -52,6 +60,29 @@ export default function LibraryScreen() {
         )}
         ListEmptyComponent={
           <Text style={styles.emptyText}>No coffees saved yet. Add some to see them here!</Text>
+        }
+      />
+      {/* FlatList for Saved Equipment */}
+      <Text>Saved Equipment</Text>
+      <FlatList
+        data={savedEquipment}
+        keyExtractor={(item, index) => `${item.Name}-${index}`}
+        renderItem={({ item }) => (
+          <View style={styles.savedCoffee}>
+            <Text style={styles.savedTitle}>{item.Name}</Text>
+            {Object.entries(item).map(
+              ([key, value]) =>
+                key !== "Name" &&
+                value && (
+                  <Text key={key} style={styles.savedText}>
+                    {key}: {value}
+                  </Text>
+                )
+            )}
+          </View>
+        )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No equipment saved yet. Add some to see them here!</Text>
         }
       />
   {/* <Button title="Clear All Data" onPress={clearAllData} />;     */}

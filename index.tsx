@@ -1,16 +1,65 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView, View, StyleSheet, FlatList, Alert, Text, KeyboardAvoidingView, TouchableWithoutFeedback, Platform, Keyboard } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import CoffeeForm from "../files/CoffeeForm";
+import Form from "../files/Form";
 import { Section } from "../files/Section";
 
 
 export default function App() {
+
+
+
+
+
+  //Form: coffee form
+  //Form: coffee form
   const coffeeLabels = [
     'Name', 'Variety', 'Blend or Single-Origin', 'Country of Origin', 'Region/Territory', 'Farm/Cooperative', 'Altitude', 'Roast Date', 'Processing Method'
   ];
+  const handleSaveCoffee = (details: Record<string, string>) => {
+    setSavedCoffees((prev) => [...prev, details]);
+    Alert.alert("Success", "Your coffee has been saved!");
+  };
+  const coffeeFormNames = {
+    alert: 'coffee', 
+    saveButton: 'Save Coffee', 
+  }
+  //Form: coffee form
+  //Form: coffee form
+
+
+
+
+
+  //Form: equipment form
+  //Form: equipment form
+  const equipmentLabels = [
+    'Name', 'Grinder', 'Brew Method', 'Brewer'
+  ];
+  const handleSaveEquipment = (details: Record<string, string>) => {
+    setSavedEquipment((prev) => [...prev, details]);
+    Alert.alert("Success", "Your equipment has been saved!");
+  };
+  const equipmentFormNames = {
+    alert: 'equipment', 
+    saveButton: 'Save Equipment', 
+  }
+  //Form: equipment form
+  //Form: equipment form
+
+
+
+  //State variables
   const [savedCoffees, setSavedCoffees] = useState<Record<string, string>[]>([]);
+  const [savedEquipment, setSavedEquipment] = useState<Record<string, string>[]>([]);
   
+
+
+
+
+
+
+
   // Load saved coffees from AsyncStorage on app start
   useEffect(() => {
     const loadCoffees = async () => {
@@ -38,11 +87,45 @@ export default function App() {
     saveCoffees();
   }, [savedCoffees]);
 
-  // Handle saving a new coffee
-  const handleSaveCoffee = (coffee: Record<string, string>) => {
-    setSavedCoffees((prev) => [...prev, coffee]);
-    Alert.alert("Success", "Your coffee has been saved!");
-  };
+
+
+
+
+
+
+
+   // Load saved equipment from AsyncStorage on app start
+   useEffect(() => {
+    const loadEquipment = async () => {
+      try {
+        const storedEquipment = await AsyncStorage.getItem("equipment");
+        if (storedEquipment) {
+          setSavedEquipment(JSON.parse(storedEquipment));
+        }
+      } catch (error) {
+        Alert.alert("Error", "Failed to load saved equipment.");
+      }
+    };
+    loadEquipment();
+  }, []);
+  
+  // Save the equipment to AsyncStorage whenever they are updated
+  useEffect(() => {
+    const saveEquipment = async () => {
+      try {
+        await AsyncStorage.setItem("equipment", JSON.stringify(savedEquipment));
+      } catch (error) {
+        Alert.alert("Error", "Failed to save equipment.");
+      }
+    };
+    saveEquipment();
+  }, [savedEquipment]);
+
+  
+
+
+
+
 
 
   return (
@@ -54,10 +137,17 @@ export default function App() {
 
 
     <View style={styles.outerContainer}>
-      <Section title="Add new coffee or equipment" backgroundColor="#212121" borderColor="#2E95D3" headerBackgroundColor="#0E3A55"
+      <Section title="Add new coffee" backgroundColor="#212121" borderColor="#2E95D3" headerBackgroundColor="#0E3A55"
       >
         {/* content */}
-        <CoffeeForm onSave={handleSaveCoffee} labels={coffeeLabels} />
+        <Form onSave={handleSaveCoffee} labels={coffeeLabels} names={coffeeFormNames}/>
+      </Section>
+
+
+      <Section title="Add new equipment" backgroundColor="#212121" borderColor="#2E95D3" headerBackgroundColor="#0E3A55"
+      >
+        {/* content */}
+        <Form onSave={handleSaveEquipment} labels={equipmentLabels} names={equipmentFormNames}/>
       </Section>
 
 
